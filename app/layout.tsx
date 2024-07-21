@@ -4,6 +4,7 @@ import "./globals.css";
 import { Providers } from '@/components/providers';
 import AdSense from "@/components/adsense";
 import Navbar from '@/components/navbar';
+import Head from 'next/head'
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -18,18 +19,21 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html>
+      <Head>
       <AdSense pId="2757650548" />
+      </Head>
       <Providers
             attribute="class"
             defaultTheme="system"
             enableSystem
             disableTransitionOnChange
           >
+      <body>
       <Navbar />
-      <body className={inter.className}>{children}</body>
+      {children}
+      </body>
       </Providers>
-
-    </html>
+      </html>
   );
 }
