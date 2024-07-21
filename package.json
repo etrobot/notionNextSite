@@ -1,0 +1,35 @@
+{
+  "name": "notion_next_site",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@notionhq/client": "^2.2.15",
+    "clsx": "^2.1.1",
+    "next": "14.2.5",
+    "notion-api": "^0.1.0",
+    "notion-types": "^6.16.0",
+    "notion-utils": "^6.16.0",
+    "optional": "^0.1.4",
+    "plaiceholder": "^3.0.0",
+    "react": "^18",
+    "react-dom": "^18",
+    "react-notion-x": "^6.16.0",
+    "sharp": "^0.33.4"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "eslint": "^8",
+    "eslint-config-next": "14.2.5",
+    "postcss": "^8",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5"
+  }
+}
