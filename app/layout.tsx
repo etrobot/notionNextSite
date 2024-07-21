@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import { Providers } from '@/components/providers';
+import AdSense from "@/components/adsense";
+import Navbar from '@/components/navbar';
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -16,7 +19,17 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <AdSense pId="2757650548" />
+      <Providers
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+      <Navbar />
       <body className={inter.className}>{children}</body>
+      </Providers>
+
     </html>
   );
 }

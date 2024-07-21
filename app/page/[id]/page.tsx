@@ -1,5 +1,3 @@
-// app/page/[id]/page.tsx
-import { type Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { BlockObjectResponse } from '@notionhq/client/build/src/api-endpoints';
 import { notesApi } from '@/lib/notion';
@@ -11,30 +9,6 @@ type Props = {
   };
 };
 
-
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { id } = params;
-  const allNotes = await notesApi.getNotes();
-  const note = allNotes.find((onenote) => onenote.id === id);
-
-  if (!note) {
-    return {
-      title: 'Not Found',
-    };
-  }
-
-  const { title, description } = note;
-  return {
-    title: title,
-    description: description,
-    openGraph: {
-      title,
-      description,
-      url: `${process.env.NEXT_PUBLIC_URL}/page/${id}`,
-      images: [`${process.env.NEXT_PUBLIC_URL}/api/og?title=${title}&description=${description}`],
-    },
-  };
-}
 
 export default async function NotePage({ params }: Props) {
   const { id } = params;
@@ -48,10 +22,10 @@ export default async function NotePage({ params }: Props) {
   const noteContent: BlockObjectResponse[] = await notesApi.getNote(note.id);
 
   return (
-    <>
+    <div className='mx-auto max-w-2xl'>
       {noteContent.map((block:BlockObjectResponse) => (
         <NotionBlockRenderer key={block.id} block={block} />
       ))}
-    </>
+    </div>
   );
 }

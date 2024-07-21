@@ -10,8 +10,13 @@
   },
   "dependencies": {
     "@notionhq/client": "^2.2.15",
+    "@radix-ui/react-dropdown-menu": "^2.1.1",
+    "@radix-ui/react-slot": "^1.1.0",
+    "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
+    "lucide-react": "^0.412.0",
     "next": "14.2.5",
+    "next-themes": "^0.3.0",
     "notion-api": "^0.1.0",
     "notion-types": "^6.16.0",
     "notion-utils": "^6.16.0",
@@ -20,7 +25,9 @@
     "react": "^18",
     "react-dom": "^18",
     "react-notion-x": "^6.16.0",
-    "sharp": "^0.33.4"
+    "sharp": "^0.33.4",
+    "tailwind-merge": "^2.4.0",
+    "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
     "@types/node": "^20",
