@@ -30,19 +30,18 @@ export default async function NotePage({ params }: Props) {
   }
 
   return (
-    <div className='mx-auto max-w-2xl'>
+    <>
       {noteContent.map((block: BlockObjectResponse) => {
         // Ensure that block.id is always defined and unique
         if (!block.id) {
           console.error('Block ID is missing or undefined', block);
           return null;
         }
-        
         return (
           <NotionBlockRenderer key={block.id} block={block} />
         );
       })}
-    </div>
+    </>
   );
 }
 

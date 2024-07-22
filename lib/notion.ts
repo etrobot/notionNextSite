@@ -2,6 +2,36 @@ import { Client, isFullPage } from '@notionhq/client';
 import { BlockObjectResponse, PageObjectResponse } from '@notionhq/client/build/src/api-endpoints';
 import { getPlaiceholder } from 'plaiceholder';
 
+const databaseId = process.env.NOTION_DATABASE_ID ?? '';
+
+
+export async function fetchPages(categoryId?: string) {
+  try {
+    const response = await notion.databases.query({
+      database_id: databaseId,
+      filter: categoryId
+        ? {
+            property: 'Category',
+            select: {
+              equals: categoryId,
+            },
+          }
+        : undefined,
+      sorts: [
+        {
+          property: 'Last edited time',
+          direction: 'descending',
+        },
+      ],
+    });
+    return response.results;
+  } catch (error) {
+    console.error('Error fetching data from Notion:', error);
+    return [];
+  }
+}
+
+
 const notion = new Client({
   auth: process.env.NOTION_API_KEY,
 });
