@@ -177,9 +177,7 @@ export const NotionBlockRenderer = ({ block }: Props) => {
 };
 
 const NotionText = ({ textItems }: { textItems: TextRichTextItemResponse[] }) => {
-  if (!textItems) {
-    return null;
-  }
+  if (!textItems) return null;
 
   return (
     <>
@@ -188,11 +186,18 @@ const NotionText = ({ textItems }: { textItems: TextRichTextItemResponse[] }) =>
           annotations: { bold, code, color, italic, strikethrough, underline },
           text,
         } = textItem;
+        
+        // Conditional rendering based on annotations
+        const style: React.CSSProperties = {};
+        if (color !== 'default') style.color = color;
+        if (bold) style.fontWeight = 'bold';
+        if (italic) style.fontStyle = 'italic';
+        if (underline) style.textDecoration = 'underline';
+        if (strikethrough) style.textDecoration = 'line-through';
+        if (code) style.fontFamily = 'monospace';
+
         return (
-          <span
-            key={index}
-            style={color !== 'default' ? { color } : {}}
-          >
+          <span key={index} style={style}>
             {text.link ? (
               <a href={text.link.url} className="text-blue-600 hover:underline">
                 {text.content}

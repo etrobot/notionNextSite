@@ -1,4 +1,3 @@
-'use client';
 import { Client } from '@notionhq/client';
 import Link from 'next/link';
 import { Suspense } from 'react'
