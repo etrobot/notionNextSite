@@ -4,7 +4,6 @@ import "./globals.css";
 import { Providers } from '@/components/providers';
 import AdSense from "@/components/adsense";
 import Navbar from '@/components/navbar';
-import Head from 'next/head'
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -19,10 +18,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
+    <>
+    <AdSense pId={process.env.ADSENSE_P_ID ?? ''} />
     <html>
-      <Head>
-      <AdSense pId="2757650548" />
-      </Head>
       <Providers
             attribute="class"
             defaultTheme="system"
@@ -35,5 +33,6 @@ export default function RootLayout({
       </body>
       </Providers>
       </html>
+      </>
   );
 }

@@ -11,18 +11,8 @@ type QuoteProps = {
 
 const Quote = ({ className, quote, author }: QuoteProps) => {
   return (
-    <blockquote
-      className='rounded-lg bg-zinc-100 p-6 dark:bg-zinc-800 border-l-4 border-blue-500 my-4'
-    >
+    <blockquote className={`rounded-lg bg-zinc-100 p-6 dark:bg-zinc-800 border-l-4 border-blue-500 my-4 ${className}`}>
       <div className="relative text-lg font-medium md:flex-grow overflow-visible">
-        <svg
-          className="absolute top-0 left-0 h-8 w-8 -ml-10 -mt-2 text-blue-400"
-          fill="currentColor"
-          viewBox="0 0 32 32"
-          aria-hidden="true"
-        >
-          <path d="M9.352 4C4.456 7.456 1 13.12 1 19.36c0 5.088 3.072 8.064 6.624 8.064 3.36 0 5.856-2.688 5.856-5.856 0-3.168-2.208-5.472-5.088-5.472-.576 0-1.344.096-1.536.192.48-3.264 3.552-7.104 6.624-9.024L9.352 4zm16.512 0c-4.8 3.456-8.256 9.12-8.256 15.36 0 5.088 3.072 8.064 6.624 8.064 3.264 0 5.856-2.688 5.856-5.856 0-3.168-2.304-5.472-5.184-5.472-.576 0-1.248.096-1.44.192.48-3.264 3.456-7.104 6.528-9.024L25.864 4z" />
-        </svg>
         <p className="relative px-2 italic" suppressHydrationWarning>
           {quote}
         </p>
@@ -180,7 +170,7 @@ export const NotionBlockRenderer = ({ block }: Props) => {
     default:
       return (
         <div className="my-4 p-4 bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-100 rounded-lg">
-          ❌ Unsupported block (${type === 'unsupported' ? 'unsupported by Notion API' : type})
+          ❌ Unsupported block ({type === 'unsupported' ? 'unsupported by Notion API' : type})
         </div>
       );
   }
@@ -193,14 +183,14 @@ const NotionText = ({ textItems }: { textItems: TextRichTextItemResponse[] }) =>
 
   return (
     <>
-      {textItems.map((textItem) => {
+      {textItems.map((textItem, index) => {
         const {
           annotations: { bold, code, color, italic, strikethrough, underline },
           text,
         } = textItem;
         return (
           <span
-            key={text.content}
+            key={index}
             style={color !== 'default' ? { color } : {}}
           >
             {text.link ? (
