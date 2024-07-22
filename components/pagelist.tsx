@@ -26,9 +26,9 @@ export function PageList({ pages }: { pages: any[] }) {
               {formatDate(page.last_edited_time)}
             </span>
             {page.properties.Category?.select?.name && (
-              <span className="p-1 ml-2 text-sm text-muted-foreground">
+              <a className="p-1 ml-2 text-sm text-muted-foreground hover:underline" href={`/category/${encodeURIComponent(page.properties.Category.select.name)}`}>
                 {page.properties.Category.select.name}
-              </span>
+              </a>
             )}
           </li>
         ))}
