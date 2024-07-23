@@ -1,8 +1,16 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# notionNextSite
+
+This is an example of creating a site using notion as a CMS.
 
 ## Getting Started
 
-First, run the development server:
+1. make a .env file from .env.example with your credentials:
+```
+NOTION TOKEN="NOTION INTEGRATION TOKEN"
+NOTION_DATABASE_ID="YOUR NOTION DATABASE ID"
+```
+
+2. run the development server:
 
 ```bash
 npm run dev
@@ -20,23 +28,17 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
 ## Deploy on Vercel
 
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
 
-## Support Me
+## Support
 
-If you like my work, you can support me by [buying me a coffee](https://ko-fi.com/franklin754) ☕.
+If you find this project useful, please consider supporting me:
+If you like my work, you can support me by [buying me a coffee]() ☕.
 
-[![ko-fi](https://storage.ko-fi.com/cdn/brandasset/kofi_button_blue.png?_gl=1*1yz7jc0*_gcl_au*MTg4NDgxOTM4Ni4xNzIxNjY1NTkx*_ga*MjEzOTk1MTExOS4xNzIxNjY1NTkz*_ga_M13FZ7VQ2C*MTcyMTY2NTU5Mi4xLjEuMTcyMTY2NjY5MC45LjAuMA..)](https://ko-fi.com/franklin754)
+<a href="https://ko-fi.com/franklin754" target="_blank">
+    <img src="https://storage.ko-fi.com/cdn/brandasset/kofi_button_blue.png" alt="Buy Me a Coffee" style="height: 40px; width: 240px;" >
+</a>

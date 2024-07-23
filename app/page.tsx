@@ -2,8 +2,9 @@ import PageList from '@/components/pagelist';
 import { Suspense } from 'react';
 import { fetchPages } from '@/lib/notion';
 
-export default async function HomePage() {
-  const pages = await fetchPages();
+export default async function HomePage({ searchParams }: { searchParams: { yr?: string } }) {
+  const year = searchParams.yr ? parseInt(searchParams.yr, 10) : undefined;
+  const pages = await fetchPages(undefined, year);
 
   return (
     <Suspense fallback={<div>Loading...</div>}>

@@ -46,14 +46,15 @@ export default async function RootLayout({
   return (
     <>
       <html>
+      {process.env.ADSENSE_P_ID &&
         <head>
           <Script
             async
-            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-${process.env.ADSENSE_P_ID}`}
+            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-${process.env.ADSENSE_P_ID}`}
             crossOrigin='anonymous'
             strategy='afterInteractive'
           />
-        </head>
+        </head>}
         <body>
           <Providers
             attribute="class"

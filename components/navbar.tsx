@@ -1,4 +1,5 @@
 import { ThemeToggle } from '@/components/theme-toggle';
+import { TwitterX,Github } from '@/components/ui/social-icons';
 import Link from 'next/link';
 
 interface NavbarProps {
@@ -24,6 +25,16 @@ const Navbar: React.FC<NavbarProps> = ({ categories }) => {
                 </Link>
               </li>
             ))}
+            {process.env.GITHUB &&
+              <li key="github">
+                <a href={process.env.GITHUB} target='_blank'><Github width={20} height={20}/></a>
+              </li>
+            }
+            {process.env.TWITTER &&
+              <li key="x">
+                <a href={process.env.TWITTER} target='_blank'><TwitterX width={20} height={20}/></a>
+              </li>
+            }
           </ul>
         </div>
       </nav>

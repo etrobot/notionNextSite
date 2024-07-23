@@ -5,18 +5,37 @@ import { getPlaiceholder } from 'plaiceholder';
 const databaseId = process.env.NOTION_DATABASE_ID ?? '';
 
 
-export async function fetchPages(categoryId?: string) {
+export async function fetchPages(categoryId?: string, year?: number) {
   try {
+    const currentYear = new Date().getFullYear();
+    const startYear = year ? currentYear - (year - 1) : currentYear - 1;
+    const startDate = new Date(`${startYear}-01-01`).toISOString();
+    const endDate = new Date(`${startYear + 1}-12-31`).toISOString();
+
+    const filters = [];
+
+    if (categoryId) {
+      filters.push({
+        property: 'Category',
+        select: {
+          equals: categoryId,
+        },
+      });
+    }
+
+    filters.push({
+      property: 'Last edited time',
+      date: {
+        on_or_after: startDate,
+        on_or_before: endDate,
+      },
+    });
+
     const response = await notion.databases.query({
       database_id: databaseId,
-      filter: categoryId
-        ? {
-            property: 'Category',
-            select: {
-              equals: categoryId,
-            },
-          }
-        : undefined,
+      filter: {
+        and: filters,
+      },
       sorts: [
         {
           property: 'Last edited time',
@@ -24,6 +43,7 @@ export async function fetchPages(categoryId?: string) {
         },
       ],
     });
+
     return response.results;
   } catch (error) {
     console.error('Error fetching data from Notion:', error);
