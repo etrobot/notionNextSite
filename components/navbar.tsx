@@ -17,9 +17,9 @@ const Navbar: React.FC<NavbarProps> = ({ categories, githubUrl, twitterUrl }) =>
   const toggleMenu = () => setIsOpen(!isOpen);
 
   return (
-    <header className="sticky top-0 md:z-50 md:flex md:items-center md:justify-between md:w-full md:h-12 md:p-2 md:shrink-0 fixed z-50 w-full p-2 flex items-center justify-between bg-background bg-opacity-80">
-      <div  className='fixed top-4 right-4'><ThemeToggle /></div>
-    <nav className="py-4 relative">
+    <header className="sticky top-0 z-50 flex items-center md:justify-between md:shrink-0 fixed w-full p-2 bg-background bg-opacity-80">
+      <div  className='fixed top-2 right-4'><ThemeToggle /></div>
+    <nav className="py-2 relative">
       <button 
             onClick={toggleMenu}
             className="md:hidden"

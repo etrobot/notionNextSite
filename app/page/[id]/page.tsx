@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import { BlockObjectResponse } from '@notionhq/client/build/src/api-endpoints';
+import { BlockObjectResponse, PageObjectResponse, RichTextItemResponse } from '@notionhq/client/build/src/api-endpoints';
 import { notesApi } from '@/lib/notion';
 import { NotionBlockRenderer } from '@/components/notionrenderer';
 
@@ -9,30 +9,42 @@ type Props = {
   };
 };
 
-async function fetchNoteContent(id: string) {
-  const allNotes = await notesApi.getNotes();
-  const note = allNotes.find((note) => note.id === id);
-
-  if (!note) {
-    return null;
-  }
-
-  const noteContent: BlockObjectResponse[] = await notesApi.getNote(note.id);
-  return noteContent;
+interface ExtendedPageObjectResponse extends Omit<PageObjectResponse, 'properties'> {
+  properties: {
+    Name: {
+      id: string;
+      type: 'title';
+      title: Array<RichTextItemResponse>;
+    };
+    [key: string]: {
+      id: string;
+      type: string;
+      [key: string]: any;
+    };
+  };
 }
 
 export default async function NotePage({ params }: Props) {
   const { id } = params;
-  const noteContent = await fetchNoteContent(id);
-
+  const page = await notesApi.getPage(id);
+  
+  // Type assertion
+  const typedPage = page.page as ExtendedPageObjectResponse;
+  console.log(typedPage);
+  const pageTitle = typedPage.properties.Name.title[0]?.plain_text;
+  const createdat = typedPage.created_time;
+  const category = typedPage.properties.Category?.select?.name;
+  const noteContent: BlockObjectResponse[] = page.content;
+  
   if (!noteContent) {
     notFound();
   }
 
   return (
-    <>
+    <div className='p-4'>
+      <h1 className="text-3xl font-bold my-6">{pageTitle}</h1>
+      <h6 className="text-xs text-muted-foreground">{createdat.slice(0, 10)} {category}</h6>
       {noteContent.map((block: BlockObjectResponse) => {
-        // Ensure that block.id is always defined and unique
         if (!block.id) {
           console.error('Block ID is missing or undefined', block);
           return null;
@@ -41,7 +53,6 @@ export default async function NotePage({ params }: Props) {
           <NotionBlockRenderer key={block.id} block={block} />
         );
       })}
-    </>
+    </div>
   );
 }
-

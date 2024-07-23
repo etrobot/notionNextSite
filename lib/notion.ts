@@ -4,71 +4,10 @@ import { getPlaiceholder } from 'plaiceholder';
 
 const databaseId = process.env.NOTION_DATABASE_ID ?? '';
 
-
-export async function fetchPages(categoryId?: string, year?: number) {
-  try {
-    const currentYear = new Date().getFullYear();
-    const startYear = year ? currentYear - (year - 1) : currentYear - 1;
-    const startDate = new Date(`${startYear}-01-01`).toISOString();
-    const endDate = new Date(`${startYear + 1}-12-31`).toISOString();
-
-    const filters = [];
-
-    if (categoryId) {
-      filters.push({
-        property: 'Category',
-        select: {
-          equals: categoryId,
-        },
-      });
-    }
-
-    filters.push({
-      property: 'Last edited time',
-      date: {
-        on_or_after: startDate,
-        on_or_before: endDate,
-      },
-    });
-
-    const response = await notion.databases.query({
-      database_id: databaseId,
-      filter: {
-        and: filters,
-      },
-      sorts: [
-        {
-          property: 'Last edited time',
-          direction: 'descending',
-        },
-      ],
-    });
-
-    return response.results;
-  } catch (error) {
-    console.error('Error fetching data from Notion:', error);
-    return [];
-  }
-}
-
-
 const notion = new Client({
   auth: process.env.NOTION_API_KEY,
 });
 
-export type Note = {
-  id: string;
-  createdAt: string;
-  lastEditedAt: string;
-  coverImage: string | null;
-  tags: string[];
-  title: string;
-  description: string;
-  slug: string;
-  isPublished: boolean;
-  publishedAt: string;
-  inProgress: boolean;
-};
 
 const noop = async (block: BlockObjectResponse) => block;
 
@@ -134,86 +73,57 @@ const BlockTypeTransformLookup: Record<
   unsupported: noop,
 };
 
-
-
 class NotesApi {
   constructor(
     private readonly notion: Client,
     private readonly databaseId: string,
   ) {}
 
-  async getNotes(sortOrder: 'asc' | 'desc' = 'desc', limit?: number) {
-    const notes = await this.getDatabaseContent(this.databaseId);
+  async getNotes(sortOrder: 'ascending' | 'descending' = 'descending', categoryId?: string, year?: number, limit?: number) {
+    const currentYear = new Date().getFullYear();
+    const startYear = year ? currentYear - (year - 1) : currentYear - 1;
+    const startDate = new Date(`${startYear}-01-01`).toISOString();
+    const endDate = new Date(`${startYear + 1}-12-31`).toISOString();
 
-    return notes
-  }
+    const filters = [];
 
-  async getNotesByTag(tag: string, sortOrder: 'asc' | 'desc' = 'desc', limit?: number) {
-    const notes = await notesApi.getNotes(sortOrder, limit);
-    const relatedNotes = notes.filter((post) => post.tags.includes(tag));
-
-    return relatedNotes;
-  }
-
-  async getNote(id: string) {
-    return this.getPageContent(id);
-  }
-
-  async getAllTags() {
-    const posts = await notesApi.getNotes();
-
-    return Array.from(new Set(posts.map((note) => note.tags).flat()));
-  }
-
-  private getDatabaseContent = async (databaseId: string): Promise<Note[]> => {
-    const db = await this.notion.databases.query({ database_id: databaseId });
-  
-    while (db.has_more && db.next_cursor) {
-      const { results, has_more, next_cursor } = await this.notion.databases.query({
-        database_id: databaseId,
-        start_cursor: db.next_cursor,
+    if (categoryId) {
+      filters.push({
+        property: 'Category',
+        select: {
+          equals: categoryId,
+        },
       });
-      db.results = [...db.results, ...results];
-      db.has_more = has_more;
-      db.next_cursor = next_cursor;
     }
-  
-    return db.results
-      .map((page) => {
-        if (!isFullPage(page)) {
-          throw new Error('Notion page is not a full page');
-        }
-        return {
-          id: page.id,
-          createdAt: page.created_time,
-          lastEditedAt: page.last_edited_time,
-          coverImage: page.cover?.type === 'external' ? page.cover.external.url : null,
-          tags:
-            page.properties.hashtags?.type === 'multi_select'
-              ? page.properties.hashtags.multi_select.map((tag) => tag.name)
-              : [],
-          title: page.properties.title?.type === 'title' ? page.properties.title.title[0]?.plain_text ?? '' : '',
-          description:
-            page.properties.description?.type === 'rich_text'
-              ? page.properties.description.rich_text[0]?.plain_text ?? ''
-              : '',
-          slug:
-            page.properties.slug?.type === 'rich_text' ? page.properties.slug.rich_text[0]?.plain_text ?? '' : '',
-          isPublished:
-            page.properties.published?.type === 'checkbox' ? page.properties.published.checkbox ?? false : false,
-          publishedAt:
-            page.properties.publishedAt?.type === 'date' ? page.properties.publishedAt.date?.start ?? '' : '',
-          inProgress:
-            page.properties.inProgress?.type === 'checkbox' ? page.properties.inProgress.checkbox ?? false : false,
-        };
-      })
-      // .filter((post) => post.isPublished);
-  };
-  
 
-  private getPageContent = async (pageId: string) => {
+    filters.push({
+      property: 'Last edited time',
+      date: {
+        on_or_after: startDate,
+        on_or_before: endDate,
+      },
+    });
+
+    const response = await this.notion.databases.query({
+      database_id: this.databaseId,
+      filter: {
+        and: filters,
+      },
+      sorts: [
+        {
+          property: 'Last edited time',
+          direction: sortOrder,
+        },
+      ],
+      page_size: limit,
+    });
+
+    return response.results;
+  }
+
+  async getPage(pageId: string) {
+    const page = await this.notion.pages.retrieve({ page_id: pageId });
     const blocks = await this.getBlocks(pageId);
-
     const blocksChildren = await Promise.all(
       blocks.map(async (block) => {
         const { id } = block;
@@ -226,37 +136,42 @@ class NotesApi {
       }),
     );
 
-    return Promise.all(
+    const transformedBlocks = await Promise.all(
       blocksChildren.map(async (block) => {
         return BlockTypeTransformLookup[block.type as BlockType](block);
       }),
-    ).then((blocks) => {
-      return blocks.reduce((acc: any, curr) => {
-        if (curr.type === 'bulleted_list_item') {
-          if (acc[acc.length - 1]?.type === 'bulleted_list') {
-            acc[acc.length - 1][acc[acc.length - 1].type].children?.push(curr);
-          } else {
-            acc.push({
-              type: 'bulleted_list',
-              bulleted_list: { children: [curr] },
-            });
-          }
-        } else if (curr.type === 'numbered_list_item') {
-          if (acc[acc.length - 1]?.type === 'numbered_list') {
-            acc[acc.length - 1][acc[acc.length - 1].type].children?.push(curr);
-          } else {
-            acc.push({
-              type: 'numbered_list',
-              numbered_list: { children: [curr] },
-            });
-          }
+    );
+
+    const structuredBlocks = transformedBlocks.reduce((acc: any, curr) => {
+      if (curr.type === 'bulleted_list_item') {
+        if (acc[acc.length - 1]?.type === 'bulleted_list') {
+          acc[acc.length - 1][acc[acc.length - 1].type].children?.push(curr);
         } else {
-          acc.push(curr);
+          acc.push({
+            type: 'bulleted_list',
+            bulleted_list: { children: [curr] },
+          });
         }
-        return acc;
-      }, []);
-    });
-  };
+      } else if (curr.type === 'numbered_list_item') {
+        if (acc[acc.length - 1]?.type === 'numbered_list') {
+          acc[acc.length - 1][acc[acc.length - 1].type].children?.push(curr);
+        } else {
+          acc.push({
+            type: 'numbered_list',
+            numbered_list: { children: [curr] },
+          });
+        }
+      } else {
+        acc.push(curr);
+      }
+      return acc;
+    }, []);
+
+    return {
+      page,
+      content: structuredBlocks,
+    };
+  }
 
   private getBlocks = async (blockId: string) => {
     const list = await this.notion.blocks.children.list({
