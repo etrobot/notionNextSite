@@ -3,8 +3,8 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from '@/components/providers';
 import Script from 'next/script';
-import Navbar from '@/components/navbar';
 import { Client } from '@notionhq/client';
+import Navbar from '@/components/navbar';
 
 // Initialize Notion client
 const notion = new Client({ auth: process.env.NOTION_API_KEY });
@@ -43,32 +43,32 @@ export default async function RootLayout({
   // Fetch categories
   const categories = await fetchCategories();
 
+
   return (
-    <>
-      <html>
-      {process.env.ADSENSE_P_ID &&
-        <head>
+    <html lang="en">
+      <head>
+        {process.env.NEXT_PUBLIC_ADSENSE_P_ID && (
           <Script
             async
-            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-${process.env.ADSENSE_P_ID}`}
+            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-${process.env.NEXT_PUBLIC_ADSENSE_P_ID}`}
             crossOrigin='anonymous'
             strategy='afterInteractive'
           />
-        </head>}
-        <body>
-          <Providers
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
-            <Navbar categories={categories} />
-            <div className='mx-auto max-w-2xl'>
+        )}
+      </head>
+      <body className={inter.className}>
+        <Providers
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+            <Navbar categories={categories} githubUrl={process.env.GITHUB} twitterUrl={process.env.TWITTER} />
+          <main className='mx-auto max-w-2xl'>
             {children}
-            </div>
-          </Providers>
-        </body>
-      </html>
-    </>
+          </main>
+        </Providers>
+      </body>
+    </html>
   );
 }
