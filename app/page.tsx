@@ -16,8 +16,8 @@ export default async function HomePage({ searchParams }: { searchParams: { yr?: 
 
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-6">Notion Database</h1>
+      <div className="container mx-auto p-4 mt-12">
+        <h1 className="text-3xl font-bold mb-2">Notion Database</h1>
         <PageList pages={pages} />
       </div>
     </Suspense>

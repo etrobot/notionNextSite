@@ -50,7 +50,7 @@ export default async function RootLayout({
           disableTransitionOnChange
         >
             <Navbar categories={categories} githubUrl={process.env.GITHUB} twitterUrl={process.env.TWITTER} />
-          <main className='mx-auto max-w-3xl'>
+          <main className='mx-auto max-w-3xl mt-14'>
             {children}
           </main>
         </Providers>
