@@ -2,9 +2,18 @@ import PageList from '@/components/pagelist';
 import { Suspense } from 'react';
 import { notesApi } from '@/lib/notion';
 
+// Fetch the notes data
+async function fetchNotes(year?: number) {
+  return await notesApi.getNotes('descending', undefined, year);
+}
+
+// Revalidate this page every 60 seconds
+export const revalidate = 60;
+
 export default async function HomePage({ searchParams }: { searchParams: { yr?: string } }) {
   const year = searchParams.yr ? parseInt(searchParams.yr, 10) : undefined;
-  const pages = await notesApi.getNotes('descending', undefined, year);
+  const pages = await fetchNotes(year);
+
   return (
     <Suspense fallback={<div>Loading...</div>}>
       <div className="container mx-auto px-4 py-8">

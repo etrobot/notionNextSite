@@ -1,6 +1,5 @@
 import { Client, isFullPage } from '@notionhq/client';
 import { BlockObjectResponse, PageObjectResponse } from '@notionhq/client/build/src/api-endpoints';
-import { getPlaiceholder } from 'plaiceholder';
 
 const databaseId = process.env.NOTION_DATABASE_ID ?? '';
 
@@ -8,77 +7,11 @@ const notion = new Client({
   auth: process.env.NOTION_API_KEY,
 });
 
-
-const noop = async (block: BlockObjectResponse) => block;
-
-/**
- * Union type of all block types
- * @see https://developers.notion.com/reference/block
- */
-type BlockType = BlockObjectResponse['type'];
-
-/**
- * Lookup table for transforming block types
- * Allows to transform an api response for a specific block type into a more usable format
- */
-const BlockTypeTransformLookup: Record<
-  BlockType,
-  (block: BlockObjectResponse) => Promise<BlockObjectResponse>
-> = {
-  file: noop,
-  paragraph: noop,
-  heading_1: noop,
-  heading_2: noop,
-  heading_3: noop,
-  bulleted_list_item: noop,
-  numbered_list_item: noop,
-  quote: noop,
-  to_do: noop,
-  toggle: noop,
-  template: noop,
-  synced_block: noop,
-  child_page: noop,
-  child_database: noop,
-  equation: noop,
-  code: noop,
-  callout: noop,
-  divider: noop,
-  breadcrumb: noop,
-  table_of_contents: noop,
-  column_list: noop,
-  column: noop,
-  link_to_page: noop,
-  table: noop,
-  table_row: noop,
-  embed: noop,
-  bookmark: noop,
-  image: async (block: any) => {
-    const contents = block[block.type];
-    const buffer = await fetch(contents[contents.type].url).then(async (res) =>
-      Buffer.from(await res.arrayBuffer()),
-    );
-    const {
-      base64,
-      metadata: { height, width },
-    } = await getPlaiceholder(buffer, { size: 64 });
-    block.image['size'] = { height, width };
-    block.image['placeholder'] = base64;
-
-    return block;
-  },
-  video: noop,
-  pdf: noop,
-  audio: noop,
-  link_preview: noop,
-  unsupported: noop,
-};
-
 class NotesApi {
   constructor(
     private readonly notion: Client,
     private readonly databaseId: string,
   ) {}
-
 
   async fetchCategories() {
     try {
@@ -153,13 +86,7 @@ class NotesApi {
       }),
     );
 
-    const transformedBlocks = await Promise.all(
-      blocksChildren.map(async (block) => {
-        return BlockTypeTransformLookup[block.type as BlockType](block);
-      }),
-    );
-
-    const structuredBlocks = transformedBlocks.reduce((acc: any, curr) => {
+    const structuredBlocks = blocksChildren.reduce((acc: any, curr) => {
       if (curr.type === 'bulleted_list_item') {
         if (acc[acc.length - 1]?.type === 'bulleted_list') {
           acc[acc.length - 1][acc[acc.length - 1].type].children?.push(curr);

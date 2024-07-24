@@ -1,6 +1,6 @@
 # notionNextSite
 
-This is an example of creating a site using notion as a CMS.
+This is an simple example of creating a CMS site using Next.js 14 and notion database.
 
 ## Getting Started
 
