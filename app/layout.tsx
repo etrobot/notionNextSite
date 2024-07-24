@@ -5,6 +5,7 @@ import { Providers } from '@/components/providers';
 import Script from 'next/script';
 import { Client } from '@notionhq/client';
 import Navbar from '@/components/navbar';
+import { notesApi } from "@/lib/notion";
 
 // Initialize Notion client
 const notion = new Client({ auth: process.env.NOTION_API_KEY });
@@ -18,21 +19,6 @@ export const metadata: Metadata = {
 };
 
 // Function to fetch categories from Notion
-async function fetchCategories() {
-  try {
-    const database = await notion.databases.retrieve({ database_id: databaseId });
-    const categoryProperty = database.properties.Category;
-
-    if (categoryProperty.type === 'select') {
-      return categoryProperty.select.options;
-    }
-    
-    return [];
-  } catch (error) {
-    console.error('Error fetching categories from Notion:', error);
-    return [];
-  }
-}
 
 // Main layout component
 export default async function RootLayout({
@@ -41,7 +27,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   // Fetch categories
-  const categories = await fetchCategories();
+  const categories = await notesApi.fetchCategories();
 
 
   return (

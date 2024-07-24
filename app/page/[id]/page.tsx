@@ -30,7 +30,6 @@ export default async function NotePage({ params }: Props) {
   
   // Type assertion
   const typedPage = page.page as ExtendedPageObjectResponse;
-  console.log(typedPage);
   const pageTitle = typedPage.properties.Name.title[0]?.plain_text;
   const createdat = typedPage.created_time;
   const category = typedPage.properties.Category?.select?.name;

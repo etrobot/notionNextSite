@@ -79,6 +79,23 @@ class NotesApi {
     private readonly databaseId: string,
   ) {}
 
+
+  async fetchCategories() {
+    try {
+      const database = await this.notion.databases.retrieve({ database_id: databaseId });
+      const categoryProperty = database.properties.Category;
+
+      if (categoryProperty.type === 'select') {
+        return categoryProperty.select.options;
+      }
+      
+      return [];
+    } catch (error) {
+      console.error('Error fetching categories from Notion:', error);
+      return [];
+    }
+  }
+
   async getNotes(sortOrder: 'ascending' | 'descending' = 'descending', categoryId?: string, year?: number, limit?: number) {
     const currentYear = new Date().getFullYear();
     const startYear = year ? currentYear - (year - 1) : currentYear - 1;
