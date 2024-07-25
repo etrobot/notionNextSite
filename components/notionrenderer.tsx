@@ -45,7 +45,7 @@ export const NotionPageRenderer = ({ block }: Props) => {
       );
     case 'heading_1':
       return (
-        <h1 className="text-3xl font-bold mt-8 mb-4 text-zinc-900 dark:text-zinc-100">
+        <h1 className="text-3xl font-bold mt-6 mb-4 text-zinc-900 dark:text-zinc-100">
           <NotionText textItems={value.rich_text} />
         </h1>
       );

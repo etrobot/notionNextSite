@@ -17,20 +17,20 @@ const Navbar: React.FC<NavbarProps> = ({ categories, githubUrl, twitterUrl }) =>
   const toggleMenu = () => setIsOpen(!isOpen);
 
   return (
-    <header className="fixed top-0 z-50 flex items-center md:justify-between md:shrink-0 fixed w-full p-2 bg-background bg-opacity-80">
-      <div  className='fixed top-2 right-2'><ThemeToggle /></div>
-    <nav className="py-2 relative">
+    <header className=" top-0 z-50 flex items-center md:justify-between md:shrink-0  w-full p-2 bg-background bg-opacity-80">
+      <div className="absolute sm:right-0 md:top-2 top-0 "><ThemeToggle /></div>
       <button 
             onClick={toggleMenu}
-            className="md:hidden"
+            className="md:hidden absolute right-2 top-2"
           >
             {isOpen ? <X /> : <Menu />}
           </button>
+    <nav className="py-2 relative">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center">
           <ul className={`
             md:flex md:space-x-4 md:items-center
-            ${isOpen ? 'bg-background p-4 space-y-2' : 'hidden'}
+            ${isOpen ? 'mt-4 p-4 space-y-2' : 'hidden'}
           `}>
             {githubUrl && (
               <li key="github">

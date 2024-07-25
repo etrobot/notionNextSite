@@ -7,7 +7,7 @@ export default async function CategoryPage({ params }: { params: { cate: string 
   const pages = await notionapi.getPages('descending', params.cate);
   
   return (
-    <div className="container mx-auto p-4 mt-12">
+    <div className="container mx-auto p-4 mt-6">
       <h1 className="text-3xl font-bold mb-6">Category: {params.cate}</h1>
       <PageList pages={pages} />
     </div>
