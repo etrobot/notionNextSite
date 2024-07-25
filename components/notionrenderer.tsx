@@ -120,6 +120,11 @@ export const NotionPageRenderer = ({ block }: Props) => {
     case 'image':
       const src = value.type === 'external' ? value.external.url : value.file.url;
       const caption = value.caption ? value.caption[0]?.plain_text : '';
+      
+      // Ensure that width and height are provided, otherwise fallback to defaults
+      const width = value.size?.width || 800; // Default width
+      const height = value.size?.height || 600; // Default height
+      
       return (
         <figure className="my-8">
           <Image
@@ -127,9 +132,9 @@ export const NotionPageRenderer = ({ block }: Props) => {
             placeholder="blur"
             src={src}
             alt={caption}
-            blurDataURL={value.placeholder}
-            width={value.size.width}
-            height={value.size.height}
+            blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/5+hPQABAgEBAAAAL0B27AAAAAElFTkSuQmCC"
+            width={width}
+            height={height}
           />
           {caption && <figcaption className="text-center mt-2 text-sm text-zinc-500">{caption}</figcaption>}
         </figure>

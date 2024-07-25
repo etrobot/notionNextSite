@@ -1,5 +1,5 @@
-import { Client, isFullPage } from '@notionhq/client';
-import { BlockObjectResponse, PageObjectResponse } from '@notionhq/client/build/src/api-endpoints';
+import { Client } from '@notionhq/client';
+import { BlockObjectResponse } from '@notionhq/client/build/src/api-endpoints';
 
 const databaseId = process.env.NOTION_DATABASE_ID ?? '';
 
