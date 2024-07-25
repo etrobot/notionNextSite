@@ -1,10 +1,10 @@
 import PageList from '@/components/pagelist';
 import { Suspense } from 'react';
-import { notesApi } from '@/lib/notion';
+import { notionapi } from '@/lib/notion';
 
 // Fetch the notes data
 async function fetchNotes(year?: number) {
-  return await notesApi.getNotes('descending', undefined, year);
+  return await notionapi.getPages('descending', undefined, year);
 }
 
 // Revalidate this page every 60 seconds

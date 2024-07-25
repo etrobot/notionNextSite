@@ -7,7 +7,7 @@ const notion = new Client({
   auth: process.env.NOTION_API_KEY,
 });
 
-class NotesApi {
+class notionApi {
   constructor(
     private readonly notion: Client,
     private readonly databaseId: string,
@@ -29,7 +29,7 @@ class NotesApi {
     }
   }
 
-  async getNotes(sortOrder: 'ascending' | 'descending' = 'descending', categoryId?: string, year?: number, limit?: number) {
+  async getPages(sortOrder: 'ascending' | 'descending' = 'descending', categoryId?: string, year?: number, limit?: number) {
     const currentYear = new Date().getFullYear();
     const startYear = year ? currentYear - (year - 1) : currentYear - 1;
     const startDate = new Date(`${startYear}-01-01`).toISOString();
@@ -136,4 +136,4 @@ class NotesApi {
   };
 }
 
-export const notesApi = new NotesApi(notion, process.env.NOTION_DATABASE_ID!);
+export const notionapi = new notionApi(notion, process.env.NOTION_DATABASE_ID!);

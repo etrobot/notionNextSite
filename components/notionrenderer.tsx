@@ -32,7 +32,7 @@ type Props = {
   block: any;
 };
 
-export const NotionBlockRenderer = ({ block }: Props) => {
+export const NotionPageRenderer = ({ block }: Props) => {
   const { type, id } = block;
   const value = block[type];
 
@@ -65,7 +65,7 @@ export const NotionBlockRenderer = ({ block }: Props) => {
       return (
         <ul className="list-disc pl-6 my-4 space-y-2 text-zinc-700 dark:text-zinc-300">
           {value.children.map((block: any) => (
-            <NotionBlockRenderer key={block.id} block={block} />
+            <NotionPageRenderer key={block.id} block={block} />
           ))}
         </ul>
       );
@@ -73,7 +73,7 @@ export const NotionBlockRenderer = ({ block }: Props) => {
       return (
         <ol className="list-decimal pl-6 my-4 space-y-2 text-zinc-700 dark:text-zinc-300">
           {value.children.map((block: any) => (
-            <NotionBlockRenderer key={block.id} block={block} />
+            <NotionPageRenderer key={block.id} block={block} />
           ))}
         </ol>
       );
@@ -84,7 +84,7 @@ export const NotionBlockRenderer = ({ block }: Props) => {
           <NotionText textItems={value.rich_text} />
           {!!value.children &&
             value.children.map((block: any) => (
-              <NotionBlockRenderer key={block.id} block={block} />
+              <NotionPageRenderer key={block.id} block={block} />
             ))}
         </li>
       );
@@ -110,7 +110,7 @@ export const NotionBlockRenderer = ({ block }: Props) => {
           </summary>
           <div className="p-4 pt-0">
             {value.children?.map((block: any) => (
-              <NotionBlockRenderer key={block.id} block={block} />
+              <NotionPageRenderer key={block.id} block={block} />
             ))}
           </div>
         </details>

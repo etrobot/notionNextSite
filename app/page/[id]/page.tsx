@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import { BlockObjectResponse, PageObjectResponse, RichTextItemResponse } from '@notionhq/client/build/src/api-endpoints';
-import { notesApi } from '@/lib/notion';
-import { NotionBlockRenderer } from '@/components/notionrenderer';
+import { notionapi } from '@/lib/notion';
+import { NotionPageRenderer } from '@/components/notionrenderer';
 
 type Props = {
   params: {
@@ -26,7 +26,7 @@ interface ExtendedPageObjectResponse extends Omit<PageObjectResponse, 'propertie
 
 // Fetch the page data
 async function fetchPageData(id: string) {
-  const page = await notesApi.getPage(id);
+  const page = await notionapi.getPage(id);
   if (!page) return null;
 
   const typedPage = page.page as ExtendedPageObjectResponse;
@@ -58,7 +58,7 @@ export default async function NotePage({ params }: Props) {
       <h6 className="text-xs text-muted-foreground">{createdat.slice(0, 10)} {category}</h6>
       {noteContent.map((block: BlockObjectResponse,index: number) => {
         return (
-          <NotionBlockRenderer key={block.id?block.id:index} block={block} />
+          <NotionPageRenderer key={block.id?block.id:index} block={block} />
         );
       })}
     </div>

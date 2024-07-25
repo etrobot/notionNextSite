@@ -5,7 +5,7 @@ import { Providers } from '@/components/providers';
 import Script from 'next/script';
 import { Client } from '@notionhq/client';
 import Navbar from '@/components/navbar';
-import { notesApi } from "@/lib/notion";
+import { notionapi } from "@/lib/notion";
 
 // Initialize Notion client
 const notion = new Client({ auth: process.env.NOTION_API_KEY });
@@ -27,7 +27,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   // Fetch categories
-  const categories = await notesApi.fetchCategories();
+  const categories = await notionapi.fetchCategories();
 
 
   return (
