@@ -32,6 +32,42 @@ type Props = {
   block: any;
 };
 
+const NotionText = ({ textItems }: { textItems: TextRichTextItemResponse[] }) => {
+  if (!textItems) return null;
+
+  return (
+    <>
+      {textItems.map((textItem, index) => {
+        const {
+          annotations: { bold, code, color, italic, strikethrough, underline },
+          text,
+        } = textItem;
+
+        // Conditional rendering based on annotations
+        const style: React.CSSProperties = {};
+        if (color !== 'default') style.color = color;
+        if (bold) style.fontWeight = 'bold';
+        if (italic) style.fontStyle = 'italic';
+        if (underline) style.textDecoration = 'underline';
+        if (strikethrough) style.textDecoration = 'line-through';
+        if (code) style.fontFamily = 'monospace';
+
+        return (
+          <span key={index} style={style}>
+            {text.link ? (
+              <a href={text.link.url} className="text-blue-400 hover:underline">
+                {text.content}
+              </a>
+            ) : (
+              text.content
+            )}
+          </span>
+        );
+      })}
+    </>
+  );
+};
+
 export const NotionPageRenderer = ({ block }: Props) => {
   const { type, id } = block;
   const value = block[type];
@@ -82,10 +118,9 @@ export const NotionPageRenderer = ({ block }: Props) => {
       return (
         <li className="pl-2">
           <NotionText textItems={value.rich_text} />
-          {!!value.children &&
-            value.children.map((block: any) => (
-              <NotionPageRenderer key={block.id} block={block} />
-            ))}
+          {value.children?.map((childBlock: any) => (
+            <NotionPageRenderer key={childBlock.id} block={childBlock} />
+          ))}
         </li>
       );
     case 'to_do':
@@ -109,8 +144,8 @@ export const NotionPageRenderer = ({ block }: Props) => {
             <NotionText textItems={value.rich_text} />
           </summary>
           <div className="p-4 pt-0">
-            {value.children?.map((block: any) => (
-              <NotionPageRenderer key={block.id} block={block} />
+            {value.children?.map((childBlock: any) => (
+              <NotionPageRenderer key={childBlock.id} block={childBlock} />
             ))}
           </div>
         </details>
@@ -126,10 +161,8 @@ export const NotionPageRenderer = ({ block }: Props) => {
         <figure className="my-8">
           <Image
             className="rounded-lg object-cover w-full"
-            placeholder="blur"
             src={src}
             alt={caption}
-            blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/5+hPQABAgEBAAAAL0B27AAAAAElFTkSuQmCC"
             width={width}
             height={height}
           />
@@ -139,11 +172,11 @@ export const NotionPageRenderer = ({ block }: Props) => {
     case 'divider':
       return <hr key={id} className="my-8 border-slate-200 dark:border-slate-700" />;
     case 'quote':
-      return <Quote key={id} quote={value.rich_text[0].plain_text} />;
+      return <Quote key={id} quote={value.rich_text[0]?.plain_text || ''} />;
     case 'code':
       return (
         <pre className={`language-${value.language} bg-slate-800 text-slate-100 rounded-lg p-4 my-4 overflow-x-auto`}>
-          <code key={id}>{value.rich_text[0].plain_text}</code>
+          <code key={id}>{value.rich_text[0]?.plain_text || ''}</code>
         </pre>
       );
     case 'file':
@@ -170,26 +203,36 @@ export const NotionPageRenderer = ({ block }: Props) => {
         </a>
       );
     case 'table':
-        return (
-          <div className="my-4 overflow-x-auto">
-            <table className="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
-              <tbody className="divide-y divide-slate-200 dark:divide-slate-700 text-bold">
-                {value.children.map((row: any, rowIndex: number) => (
-                  <tr key={row.id} className={rowIndex % 2 === 0 ? 'bg-slate-100 dark:bg-slate-800' : 'bg-slate-50 dark:bg-slate-900'}>
-                    {row[row.type].cells.map((cell: TextRichTextItemResponse[], cellIndex: number) => (
-                      <td key={`${row.id}-${cellIndex}`} className="px-6 py-4 whitespace-nowrap text-sm">
-                        <NotionText textItems={cell} />
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        );
+      return (
+        <div className="my-4 overflow-x-auto">
+          <table className="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
+            <tbody className="divide-y divide-slate-200 dark:divide-slate-700 text-bold">
+              {value.children.map((row: any, rowIndex: number) => (
+                <tr key={row.id} className={rowIndex % 2 === 0 ? 'bg-slate-100 dark:bg-slate-800' : 'bg-slate-50 dark:bg-slate-900'}>
+                  {row[row.type].cells.map((cell: TextRichTextItemResponse[], cellIndex: number) => (
+                    <td key={`${row.id}-${cellIndex}`} className="px-6 py-4 whitespace-nowrap text-sm">
+                      <NotionText textItems={cell} />
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      );
     case 'column_list':
       return (
         <div className="flex gap-1 my-4 space-y-4">
+          {value.children.map((block: any) => (
+            <div key={block.id} className="w-full">
+              <NotionPageRenderer block={block} />
+            </div>
+          ))}
+        </div>
+      );
+    case 'column':
+      return (
+        <div>
           {value.children.map((block: any) => (
             <NotionPageRenderer key={block.id} block={block} />
           ))}
@@ -202,40 +245,4 @@ export const NotionPageRenderer = ({ block }: Props) => {
         </div>
       );
   }
-};
-
-const NotionText = ({ textItems }: { textItems: TextRichTextItemResponse[] }) => {
-  if (!textItems) return null;
-
-  return (
-    <>
-      {textItems.map((textItem, index) => {
-        const {
-          annotations: { bold, code, color, italic, strikethrough, underline },
-          text,
-        } = textItem;
-        
-        // Conditional rendering based on annotations
-        const style: React.CSSProperties = {};
-        if (color !== 'default') style.color = color;
-        if (bold) style.fontWeight = 'bold';
-        if (italic) style.fontStyle = 'italic';
-        if (underline) style.textDecoration = 'underline';
-        if (strikethrough) style.textDecoration = 'line-through';
-        if (code) style.fontFamily = 'monospace';
-
-        return (
-          <span key={index} style={style}>
-            {text.link ? (
-              <a href={text.link.url} className="text-blue-400 hover:underline">
-                {text.content}
-              </a>
-            ) : (
-              text.content
-            )}
-          </span>
-        );
-      })}
-    </>
-  );
 };

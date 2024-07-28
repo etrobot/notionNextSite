@@ -7,7 +7,7 @@ const notion = new Client({
   auth: process.env.NOTION_API_KEY,
 });
 
-class notionApi {
+class NotionApi {
   constructor(
     private readonly notion: Client,
     private readonly databaseId: string,
@@ -15,7 +15,7 @@ class notionApi {
 
   async fetchCategories() {
     try {
-      const database = await this.notion.databases.retrieve({ database_id: databaseId });
+      const database = await this.notion.databases.retrieve({ database_id: this.databaseId });
       const categoryProperty = database.properties.Category;
 
       if (categoryProperty.type === 'select') {
@@ -35,7 +35,7 @@ class notionApi {
     const startDate = new Date(`${startYear}-01-01`).toISOString();
     const endDate = new Date(`${startYear + 1}-12-31`).toISOString();
 
-    const filters = [];
+    const filters: any[] = [];
 
     if (categoryId) {
       filters.push({
@@ -71,29 +71,18 @@ class notionApi {
     return response.results;
   }
 
-  async getPage(pageId: string) {
+  private async getPage(pageId: string) {
     const page = await this.notion.pages.retrieve({ page_id: pageId });
     const blocks = await this.getBlocks(pageId);
 
-    const structuredBlocks = await Promise.all(
-      blocks.map(async (block) => {
-        if (block.has_children && isBlockWithChildren(block)) {
-          console.log(block);
-          const blockWithChildren = block as BlockWithChildren;
-          blockWithChildren[block.type].children = await this.getBlocks(block.id);
-        }
-        return block;
-      })
-    );
-
     return {
       page,
-      content: structuredBlocks,
+      content: blocks,
     };
   }
 
-  private getBlocks = async (blockId: string) => {
-    let blocks: BlockObjectResponse[] = [];
+  private async getBlocks(blockId: string): Promise<BlockObjectResponse[]> {
+    const blocks: BlockObjectResponse[] = [];
     let cursor = undefined;
 
     do {
@@ -102,27 +91,23 @@ class notionApi {
         start_cursor: cursor,
       });
 
-      // Filter out PartialBlockObjectResponse and keep only BlockObjectResponse
       const validResults = results.filter((result): result is BlockObjectResponse => 
         result.object === 'block'
       );
 
-      blocks = blocks.concat(validResults);
+      for (const block of validResults) {
+        if (block.has_children) {
+          const children = await this.getBlocks(block.id);
+          (block as any)[block.type].children = children;
+        }
+        blocks.push(block);
+      }
+
       cursor = next_cursor;
     } while (cursor);
 
     return blocks;
-  };
+  }
 }
 
-// Define the type for blocks with children
-type BlockWithChildren = BlockObjectResponse & {
-  [key: string]: any;
-}
-
-// Type guard to check if a block can have children
-function isBlockWithChildren(block: BlockObjectResponse): block is BlockWithChildren {
-  return block.has_children;
-}
-
-export const notionapi = new notionApi(notion, databaseId);
+export const notionapi = new NotionApi(notion, databaseId);
