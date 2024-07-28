@@ -11,7 +11,7 @@ class NotionApi {
   constructor(
     private readonly notion: Client,
     private readonly databaseId: string,
-  ) {}
+  ) { }
 
   async fetchCategories() {
     try {
@@ -21,7 +21,7 @@ class NotionApi {
       if (categoryProperty.type === 'select') {
         return categoryProperty.select.options;
       }
-      
+
       return [];
     } catch (error) {
       console.error('Error fetching categories from Notion:', error);
@@ -71,7 +71,7 @@ class NotionApi {
     return response.results;
   }
 
-  private async getPage(pageId: string) {
+  async getPage(pageId: string) {
     const page = await this.notion.pages.retrieve({ page_id: pageId });
     const blocks = await this.getBlocks(pageId);
 
@@ -91,7 +91,7 @@ class NotionApi {
         start_cursor: cursor,
       });
 
-      const validResults = results.filter((result): result is BlockObjectResponse => 
+      const validResults = results.filter((result): result is BlockObjectResponse =>
         result.object === 'block'
       );
 
