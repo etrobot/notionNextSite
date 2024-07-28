@@ -29,7 +29,29 @@ class NotionApi {
     }
   }
 
-  async getPages(sortOrder: 'ascending' | 'descending' = 'descending', categoryId?: string, year?: number, limit?: number) {
+  async getLastStatusOptions() {
+    try {
+      const database = await this.notion.databases.retrieve({ database_id: this.databaseId });
+      const statusProperty = database.properties.Status;
+
+      if (statusProperty.type === 'status') {
+        return statusProperty.status.options;
+      }
+
+      return [];
+    } catch (error) {
+      console.error('Error fetching status options from Notion:', error);
+      return [];
+    }
+  }
+
+  async getPages(
+    sortOrder: 'ascending' | 'descending' = 'descending',
+    categoryId?: string,
+    year?: number,
+    limit?: number,
+    status?: string
+  ) {
     const currentYear = new Date().getFullYear();
     const startYear = year ? currentYear - (year - 1) : currentYear - 1;
     const startDate = new Date(`${startYear}-01-01`).toISOString();
@@ -42,6 +64,22 @@ class NotionApi {
         property: 'Category',
         select: {
           equals: categoryId,
+        },
+      });
+    }
+
+    if (!status) {
+      const lastStatusOptions = await this.getLastStatusOptions();
+      if (lastStatusOptions.length > 0) {
+        status = lastStatusOptions.slice(-1)[0].name;
+      }
+    }
+
+    if (status) {
+      filters.push({
+        property: 'Status',
+        status: {
+          equals: status,
         },
       });
     }
@@ -67,7 +105,6 @@ class NotionApi {
       ],
       page_size: limit,
     });
-
     return response.results;
   }
 
