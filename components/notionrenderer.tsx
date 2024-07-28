@@ -187,6 +187,14 @@ export const NotionPageRenderer = ({ block }: Props) => {
             </table>
           </div>
         );
+    case 'column_list':
+      return (
+        <div className="flex gap-1 my-4 space-y-4">
+          {value.children.map((block: any) => (
+            <NotionPageRenderer key={block.id} block={block} />
+          ))}
+        </div>
+      );
     default:
       return (
         <div className="my-4 p-4 bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-100 rounded-lg">

@@ -1,5 +1,5 @@
 import { Client } from '@notionhq/client';
-import { BlockObjectResponse } from '@notionhq/client/build/src/api-endpoints';
+import { BlockObjectResponse, PartialBlockObjectResponse } from '@notionhq/client/build/src/api-endpoints';
 
 const databaseId = process.env.NOTION_DATABASE_ID ?? '';
 
@@ -74,42 +74,17 @@ class notionApi {
   async getPage(pageId: string) {
     const page = await this.notion.pages.retrieve({ page_id: pageId });
     const blocks = await this.getBlocks(pageId);
-    const blocksChildren = await Promise.all(
+
+    const structuredBlocks = await Promise.all(
       blocks.map(async (block) => {
-        const { id } = block;
-        const contents = block[block.type as keyof typeof block] as any;
-        if (!['unsupported', 'child_page'].includes(block.type) && block.has_children) {
-          contents.children = await this.getBlocks(id);
+        if (block.has_children && isBlockWithChildren(block)) {
+          console.log(block);
+          const blockWithChildren = block as BlockWithChildren;
+          blockWithChildren[block.type].children = await this.getBlocks(block.id);
         }
-
         return block;
-      }),
+      })
     );
-
-    const structuredBlocks = blocksChildren.reduce((acc: any, curr) => {
-      if (curr.type === 'bulleted_list_item') {
-        if (acc[acc.length - 1]?.type === 'bulleted_list') {
-          acc[acc.length - 1][acc[acc.length - 1].type].children?.push(curr);
-        } else {
-          acc.push({
-            type: 'bulleted_list',
-            bulleted_list: { children: [curr] },
-          });
-        }
-      } else if (curr.type === 'numbered_list_item') {
-        if (acc[acc.length - 1]?.type === 'numbered_list') {
-          acc[acc.length - 1][acc[acc.length - 1].type].children?.push(curr);
-        } else {
-          acc.push({
-            type: 'numbered_list',
-            numbered_list: { children: [curr] },
-          });
-        }
-      } else {
-        acc.push(curr);
-      }
-      return acc;
-    }, []);
 
     return {
       page,
@@ -118,22 +93,36 @@ class notionApi {
   }
 
   private getBlocks = async (blockId: string) => {
-    const list = await this.notion.blocks.children.list({
-      block_id: blockId,
-    });
+    let blocks: BlockObjectResponse[] = [];
+    let cursor = undefined;
 
-    while (list.has_more && list.next_cursor) {
-      const { results, has_more, next_cursor } = await this.notion.blocks.children.list({
+    do {
+      const { results, next_cursor } = await this.notion.blocks.children.list({
         block_id: blockId,
-        start_cursor: list.next_cursor,
+        start_cursor: cursor,
       });
-      list.results = list.results.concat(results);
-      list.has_more = has_more;
-      list.next_cursor = next_cursor;
-    }
 
-    return list.results as BlockObjectResponse[];
+      // Filter out PartialBlockObjectResponse and keep only BlockObjectResponse
+      const validResults = results.filter((result): result is BlockObjectResponse => 
+        result.object === 'block'
+      );
+
+      blocks = blocks.concat(validResults);
+      cursor = next_cursor;
+    } while (cursor);
+
+    return blocks;
   };
 }
 
-export const notionapi = new notionApi(notion, process.env.NOTION_DATABASE_ID!);
+// Define the type for blocks with children
+type BlockWithChildren = BlockObjectResponse & {
+  [key: string]: any;
+}
+
+// Type guard to check if a block can have children
+function isBlockWithChildren(block: BlockObjectResponse): block is BlockWithChildren {
+  return block.has_children;
+}
+
+export const notionapi = new notionApi(notion, databaseId);
