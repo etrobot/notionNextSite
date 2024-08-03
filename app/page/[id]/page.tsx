@@ -54,8 +54,8 @@ export default async function NotePage({ params }: Props) {
 
   return (
     <div className='p-4'>
-      <h1 className="text-3xl font-bold mb-6">{pageTitle}</h1>
-      <h6 className="text-xs text-muted-foreground">{createdat.slice(0, 10)} {category}</h6>
+      <h1 className="text-3xl font-bold mb-2">{pageTitle}</h1>
+      <h6 className="text-xs text-muted-foreground mb-4">{createdat.slice(0, 10)} {category}</h6>
       {noteContent.map((block: BlockObjectResponse,index: number) => {
         return (
           <NotionPageRenderer key={block.id?block.id:index} block={block} />

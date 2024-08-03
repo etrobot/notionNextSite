@@ -238,6 +238,51 @@ export const NotionPageRenderer = ({ block }: Props) => {
           ))}
         </div>
       );
+      case 'child_database':
+        return (
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {value.content.map((childBlock: any) => {
+              const { id, cover, properties, url, public_url } = childBlock;
+              const title = properties.Name.title.length > 0
+                ? properties.Name.title[0].plain_text
+                : 'Untitled';
+              const createdTime = new Date(properties.Created.created_time).toLocaleDateString();
+              const coverUrl = cover?.[cover.type]?.url || null;
+              const linkUrl = public_url || url;
+      
+              return (
+                <div key={id} className="max-w-sm rounded-lg overflow-hidden shadow-lg bg-white dark:bg-gray-800">
+                  <div className="relative w-full" style={{ paddingBottom: '75%' }}> {/* Aspect ratio 4:3 */}
+                    {coverUrl ? (
+                      <Image
+                        src={coverUrl}
+                        alt={title}
+                        className="absolute inset-0 w-full h-full object-cover"
+                        width={320}
+                        height={240}
+                      />
+                    ) : (
+                      <div className="absolute inset-0 w-full h-full bg-gray-200 dark:bg-gray-700" />
+                    )}
+                  </div>
+                  <div className="p-2 flex flex-col h-full">
+                    <div className="flex-grow overflow-hidden">
+                        <h3 className="font-bold mb-2 line-clamp-3">
+                          <a href={linkUrl} target="_blank" rel="noopener noreferrer">
+                            {title}
+                          </a>
+                        </h3>
+                        <p className="text-xs text-muted-foreground">
+                        {createdTime}
+                      </p>
+                      </div>
+                    </div>
+                </div>
+              );
+            })}
+          </div>
+        );
+      
     default:
       return (
         <div className="my-4 p-4 bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-100 rounded-lg">

@@ -110,8 +110,9 @@ class NotionApi {
 
   async getPage(pageId: string) {
     const page = await this.notion.pages.retrieve({ page_id: pageId });
+    console.log(page)
     const blocks = await this.getBlocks(pageId);
-
+    console.log(blocks)
     return {
       page,
       content: blocks,
@@ -132,7 +133,14 @@ class NotionApi {
         result.object === 'block'
       );
 
+      console.log(results)
+
       for (const block of validResults) {
+        if (block.type === 'child_database') {
+          const childDatabaseContents = await this.queryChildDatabase(block.id);
+          (block as any).child_database.content = childDatabaseContents;
+        }
+
         if (block.has_children) {
           const children = await this.getBlocks(block.id);
           (block as any)[block.type].children = children;
@@ -144,6 +152,18 @@ class NotionApi {
     } while (cursor);
 
     return blocks;
+  }
+
+  private async queryChildDatabase(databaseId: string) {
+    try {
+      const response = await this.notion.databases.query({
+        database_id: databaseId,
+      });
+      return response.results;
+    } catch (error) {
+      console.error('Error querying child database:', error);
+      return [];
+    }
   }
 }
 
