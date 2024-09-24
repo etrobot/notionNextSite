@@ -28,9 +28,4 @@ Check out [Next.js deployment documentation](https://nextjs.org/docs/deployment)
 
 ## Support
 
-If you find this project useful, please consider supporting me:
-If you like my work, you can support me by [buying me a coffee]() ☕.
-
-<a href="https://ko-fi.com/franklin754" target="_blank">
-    <img src="https://storage.ko-fi.com/cdn/brandasset/kofi_button_blue.png" alt="Buy Me a Coffee" style="height: 40px; width: 240px;" >
-</a>
+[![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-ffdd00?style=flat&logo=buy-me-a-coffee&logoColor=black)](https://www.paypal.com/paypalme/franklin755)
