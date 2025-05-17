@@ -50,69 +50,70 @@ class NotionApi {
     categoryId?: string,
     year?: number,
     limit?: number,
-    status?: string
+    status: string = 'Done'
   ) {
-    const currentYear = new Date().getFullYear();
-    const startYear = year ? currentYear - (year - 1) : currentYear - 1;
-    const startDate = new Date(`${startYear}-01-01`).toISOString();
-    const endDate = new Date(`${startYear + 1}-12-31`).toISOString();
+    console.log(`[NotionAPI] Fetching pages with params:`, { sortOrder, categoryId, year, limit, status });
+    const startTime = Date.now();
 
-    const filters: any[] = [];
+    try {
+      const currentYear = new Date().getFullYear();
+      const startYear = year ? currentYear - (year - 1) : currentYear - 1;
+      const startDate = new Date(`${startYear}-01-01`).toISOString();
+      const endDate = new Date(`${startYear + 1}-12-31`).toISOString();
 
-    if (categoryId) {
-      filters.push({
-        property: 'Category',
-        select: {
-          equals: categoryId,
-        },
-      });
-    }
+      const filters: any[] = [];
 
-    if (!status) {
-      const lastStatusOptions = await this.getLastStatusOptions();
-      if (lastStatusOptions.length > 0) {
-        status = lastStatusOptions.slice(-1)[0].name;
+      if (categoryId) {
+        filters.push({
+          property: 'Category',
+          select: {
+            equals: categoryId,
+          },
+        });
       }
-    }
 
-    if (status) {
+      if (status) {
+        filters.push({
+          property: 'Status',
+          status: {
+            equals: status,
+          },
+        });
+      }
+
       filters.push({
-        property: 'Status',
-        status: {
-          equals: status,
+        property: 'Created time',
+        date: {
+          on_or_after: startDate,
+          on_or_before: endDate,
         },
       });
-    }
 
-    filters.push({
-      property: 'Last edited time',
-      date: {
-        on_or_after: startDate,
-        on_or_before: endDate,
-      },
-    });
-
-    const response = await this.notion.databases.query({
-      database_id: this.databaseId,
-      filter: {
-        and: filters,
-      },
-      sorts: [
-        {
-          property: 'Last edited time',
-          direction: sortOrder,
+      const response = await this.notion.databases.query({
+        database_id: this.databaseId,
+        filter: {
+          and: filters,
         },
-      ],
-      page_size: limit,
-    });
-    return response.results;
+        sorts: [
+          {
+            property: 'Created time',
+            direction: sortOrder,
+          },
+        ],
+        page_size: limit,
+      });
+
+      console.log(`[NotionAPI] Fetched ${response.results.length} pages in ${Date.now() - startTime}ms`);
+      return response.results;
+    } catch (error) {
+      console.error('[NotionAPI] Error fetching pages:', error);
+      throw error;
+    }
   }
 
   async getPage(pageId: string) {
     const page = await this.notion.pages.retrieve({ page_id: pageId });
-    console.log(page)
     const blocks = await this.getBlocks(pageId);
-    console.log(blocks)
     return {
       page,
       content: blocks,
@@ -132,8 +133,6 @@ class NotionApi {
       const validResults = results.filter((result): result is BlockObjectResponse =>
         result.object === 'block'
       );
-
-      console.log(results)
 
       for (const block of validResults) {
         if (block.type === 'child_database') {

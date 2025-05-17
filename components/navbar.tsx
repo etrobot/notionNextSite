@@ -48,7 +48,7 @@ const Navbar: React.FC<NavbarProps> = ({ categories, githubUrl, twitterUrl }) =>
             )}
             <li key="all">
               <Link href="/" onClick={() => setIsOpen(false)}>
-                All
+                HOME
               </Link>
             </li>
             {categories.map((category) => (

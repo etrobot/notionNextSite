@@ -118,11 +118,16 @@ export const NotionPageRenderer = ({ block }: Props) => {
       return (
         <li className="pl-2">
           <NotionText textItems={value.rich_text} />
-          {value.children?.map((childBlock: any) => (
-            <NotionPageRenderer key={childBlock.id} block={childBlock} />
-          ))}
+          {value.children && (
+            <ol className="pl-4">  {/* Use <ol> or <ul> to wrap nested list items */}
+              {value.children.map((childBlock: any) => (
+                <NotionPageRenderer key={childBlock.id} block={childBlock} />
+              ))}
+            </ol>
+          )}
         </li>
       );
+      
     case 'to_do':
       return (
         <div className="flex items-center space-x-2 my-2">
@@ -152,23 +157,26 @@ export const NotionPageRenderer = ({ block }: Props) => {
       );
     case 'child_page':
       return <p className="text-blue-400 hover:underline">{value.title}</p>;
-    case 'image':
-      const src = value.type === 'external' ? value.external.url : value.file.url;
-      const caption = value.caption ? value.caption[0]?.plain_text : '';
-      const width = value.size?.width || 800; // Default width
-      const height = value.size?.height || 600; // Default height
-      return (
-        <figure className="my-8">
-          <Image
-            className="rounded-lg object-cover w-full"
-            src={src}
-            alt={caption}
-            width={width}
-            height={height}
-          />
-          {caption && <figcaption className="text-center mt-2 text-sm text-slate-500">{caption}</figcaption>}
-        </figure>
-      );
+      case 'image':
+        const src = value.type === 'external' ? value.external.url : value.file.url;
+        const caption = value.caption ? value.caption[0]?.plain_text : '';
+        const width = value.size?.width || 400; // 默认宽度
+        const height = value.size?.height || 300; // 默认高度
+        return (
+          <figure className="my-8">
+            <img
+              style={{ maxWidth: '100%', maxHeight: '300px', objectFit: 'cover' }} // 使用style属性设置最大宽度和高度
+              className="rounded-lg"
+              src={src}
+              alt={caption}
+              width={width}
+              height={height}
+            />
+            {caption && <figcaption className="text-center mt-2 text-sm text-slate-500">{caption}</figcaption>}
+          </figure>
+        );
+      
+      
     case 'divider':
       return <hr key={id} className="my-8 border-slate-200 dark:border-slate-700" />;
     case 'quote':
